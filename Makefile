@@ -4,9 +4,9 @@ LIBS =
 
 all: goldis
 
-goldis: goldis.c
-	$(CC) $(CFLAGS) -o goldis goldis.c $(LIBS)
+goldis: main.o server.o handler.o
+	$(CC) $(CFLAGS) -o goldis main.o server.o handler.o $(LIBS)
 	
 clean:
-	rm goldis
+	rm -f goldis *.o
 
