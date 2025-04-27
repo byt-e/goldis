@@ -23,6 +23,33 @@ static int parse_resp_line(const char *input, RespValue *out, RespType type) {
     return 0;
 }
 
+static int parse_bulk_string(const char *input, RespValue *out) {
+    const char *len_start = input + 1;
+    char *new_line = strstr(len_start, "\r\n");
+    if (!new_line) return -1;
+
+    int len = atoi(len_start);
+    if (len < 0) {
+        out->type = RESP_BULK_STRING;
+        out->str = NULL;
+        return 0;
+    }
+
+    const char *data_start = new_line + 2;
+    const char *data_end = data_start + len;
+
+    if (strncmp(data_end, "\r\n", 2) != 0) return 1;
+
+    out->str = malloc(len + 1);
+    if (!out->str) return -1;
+
+    memcpy(out->str, data_start, len);
+    out->str[len] = '\0';
+
+    out->type = RESP_BULK_STRING;
+    return 0;
+}
+
 int parse_resp(const char *input, RespValue *out) {
     if (!input || !out) return -1;
 
@@ -31,6 +58,8 @@ int parse_resp(const char *input, RespValue *out) {
             return parse_resp_line(input, out, RESP_SIMPLE_STRING);
         case '-':
             return parse_resp_line(input, out, RESP_ERROR);
+        case '$':
+            return parse_bulk_string(input, out);
         default:
             return -1; // Unsupported RESP type.
     }

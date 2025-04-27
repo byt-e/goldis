@@ -3,12 +3,20 @@
 
 typedef enum {
     RESP_SIMPLE_STRING,
+    RESP_BULK_STRING,
+    RESP_ARRAY,
     RESP_ERROR,
 } RespType;
 
-typedef struct {
+typedef struct RespValue {
     RespType type;
-    char *str;
+    union {
+        char *str;
+        struct {
+            struct RespValue *elements;
+            int length;
+        } array;
+    };
 } RespValue;
 
 int parse_resp(const char *input, RespValue *out);

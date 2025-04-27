@@ -26,12 +26,26 @@ int handle_client(int client_fd) {
         return 0;
     }
 
-    if (val.type == RESP_SIMPLE_STRING && strcmp(val.str, "PING") == 0) {
-        const char *pong = "+PONG\r\n";
-        send(client_fd, pong, strlen(pong), 0);
-    } else {
-        const char *msg = "-ERR unknown command\r\n";
-        send(client_fd, msg, strlen(msg), 0);
+    switch (val.type) {
+        case RESP_SIMPLE_STRING:
+        if (strcmp(val.str, "PING") == 0) {
+            const char *pong = "+PONG\r\n";
+            send(client_fd, pong, strlen(pong), 0);
+        }
+        break;
+
+        case RESP_BULK_STRING:
+        if (strcmp(val.str, "PING") == 0) {
+            const char *pong = "+PONG\r\n";
+            send(client_fd, pong, strlen(pong), 0);
+        }
+        break;
+
+        case RESP_ARRAY:
+        case RESP_ERROR:
+        default:
+            const char *msg = "-ERR unknown command\r\n";
+            send(client_fd, msg, strlen(msg), 0);
     }
 
     free(val.str);
