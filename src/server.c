@@ -5,6 +5,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/select.h>
+
 #include "handler.h"
 
 void run_server(int port) {
@@ -60,15 +61,10 @@ void run_server(int port) {
                     }
                 } else {
                     // Existing Client, handle message.
-                    char buf[1024];
-                    int nbytes = recv(i, buf, sizeof(buf), 0);
-                    if (nbytes <= 0) {
+                    if (handle_client(i) < 0) {
                         close(i);
                         FD_CLR(i, &master);
                         printf("Client disconnected: fd=%d\n", i);
-                    } else {
-                        buf[nbytes] = '\0';
-                        handle_command(i, buf);
                     }
                 }
             }
