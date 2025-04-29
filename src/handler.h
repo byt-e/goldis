@@ -1,6 +1,6 @@
 #ifndef HANDLER_H
 #define HANDLER_H
 
-int handle_client(int client_fd);
+void handle_command(int client_fd, const char *input);
 
 #endif

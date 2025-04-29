@@ -8,6 +8,8 @@
 
 #include "handler.h"
 
+#define BUF_SIZE 1024
+
 void run_server(int port) {
     int listener = socket(AF_INET, SOCK_STREAM, 0);
     if (listener < 0) {
@@ -61,10 +63,15 @@ void run_server(int port) {
                     }
                 } else {
                     // Existing Client, handle message.
-                    if (handle_client(i) < 0) {
+                    char buf[BUF_SIZE];
+                    ssize_t bytes_read = recv(i, buf, sizeof(buf)-1, 0);
+                    if (bytes_read <= 0) {
                         close(i);
                         FD_CLR(i, &master);
                         printf("Client disconnected: fd=%d\n", i);
+                    } else {
+                        buf[bytes_read] = '\0'; 
+                        handle_command(i, buf);
                     }
                 }
             }
