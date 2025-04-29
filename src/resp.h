@@ -8,6 +8,8 @@ typedef enum {
     RESP_ERROR,
 } RespType;
 
+typedef struct Resvalue Resvalue;
+
 typedef struct RespValue {
     RespType type;
     union {
@@ -20,5 +22,7 @@ typedef struct RespValue {
 } RespValue;
 
 int parse_resp(const char *input, RespValue *out);
+void free_resp(RespValue *val);
+
 
 #endif
